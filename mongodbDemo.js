@@ -6,7 +6,7 @@ var url = 'mongodb://localhost:27017/restaurants';
 MongoClient.connect(url, function(err, db){
 
 	assert.equal(null, err);
-	findRestaurants(db, function(){
+	findSortRestaurants(db, function(){
 
 		db.close();
 	});
@@ -47,7 +47,7 @@ var insertDocument = function(db, callback){
 };
 
 
-var findRestaurants = function(db, callback){
+var findAllRestaurants = function(db, callback){
 
 	var cursor = db.collection('restaurants').find();
 	cursor.each(function(err, doc){
@@ -60,4 +60,121 @@ var findRestaurants = function(db, callback){
 			callback();
 		}
 	});
+};
+
+var findSpecifiedRestaurants = function(db, callback){
+
+   var cursor = db.collection('restaurants').find( {"borough": "Manhattan"});
+   cursor.each(function(err, doc){
+
+      assert.equal(err, null);
+      if (doc != null) {
+
+         console.dir(doc);
+      }else {
+
+         callback();
+      }
+   });
+};
+
+var findEmbeddedRestaurants = function(db, callback){
+
+   var cursor = db.collection('restaurants').find( { "address.zipcode": "10075"});
+   cursor.each(function(err, doc){
+
+      assert.equal(err, null);
+      if (doc != null) {
+
+         console.dir(doc);
+      }else {
+
+         callback();
+      }
+   });
+};
+
+var findArrayRestaurants = function(db, callback){
+
+   var cursor = db.collection('restaurants').find({"grades.grade": "B"});
+   cursor.each(function(err, doc){
+
+      assert.equal(err, null);
+
+      if (doc != null) {
+
+         console.dir(doc);
+      }else {
+
+         callback();
+      }
+   });
+}
+
+var findGTRestaurants = function(db, callback){
+
+   var cursor = db.collection('restaurants').find( { "grades.score": { $lt: 30}});
+   cursor.each(function(err, doc){
+
+      assert.equal(err, null);
+      if (doc != null) {
+
+         console.dir(doc);
+      }else {
+
+         callback();
+      }
+   });
+};
+
+var findAndRestaurants = function(db, callback){
+
+   var cursor = db.collection('restaurants').find( 
+      {"grades.grade" : "B", "grades.score": {$lt: 30}
+   });
+
+   cursor.each(function(err, doc){
+
+      assert.equal(err, null);
+      if (doc != null) {
+
+         console.dir(doc);
+      }else {
+
+         callback();
+      }
+   });
+};
+
+var findOrRestaurants = function(db, callback){
+
+   var cursor = db.collection('restaurants').find(
+      {$or: [{ "grades.grade": "B"}, {"grades.score": {$gt: 30}}]}
+   );
+   cursor.each(function(err, doc){
+
+      assert.equal(err, null);
+      if (doc != null) {
+
+         console.dir(doc);
+      }else {
+
+         callback();
+      }
+   });
+};
+
+var findSortRestaurants = function(db, callback){
+
+   var cursor = db.collection('restaurants').find().sort(
+      { "borough": 1, "address.zipcode": -1}
+   );
+   cursor.each(function(err,doc){
+      assert.equal(err, null);
+      if (doc != null) {
+         console.dir(doc);
+      }else{
+         callback();
+      }
+   });
 };
